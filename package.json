@@ -1,0 +1,15 @@
+{
+    "name": "amanda",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "node ./src/server.js"
+    },
+    "keywords": [],
+    "author": "Amanda Rocha Silva",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "express": "^4.18.2"
+    }
+}
