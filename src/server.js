@@ -1,34 +1,40 @@
-require("express-async-errors");
+require("dotenv/config")
+require("express-async-errors")
+const AppError = require("./utils/appError.js")
 
-const database = require("./database/sqlite");
-const AppError = require("./utils/AppError");
-const express = require("express");
+const express = require("express")
+const app = express()
 
-const routes = require("./routes")
+const cors = require("cors")
+app.use(cors())
 
-const app = express();
-app.use(express.json());
+app.use(express.json())
 
-app.use(routes);
+const uploadConfig = require("./config/upload.js")
+app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER))
 
-database();
+const routes = require("../src/routes/index.js")
+app.use(routes)
 
-app.use((error, request, next) => {
-    if(error instanceof AppError) {
+const sqliteConnection = require("./dataBase/sqlite/index.js")
+sqliteConnection()
+
+app.use((error, request, response, next) => {
+
+    if(error instanceof AppError){
         return response.status(error.statusCode).json({
-            status: "Error",
+            statusCode: error.statusCode,
             message: error.message
-        });
+        })
     }
+    
+    console.error(error)
 
-    console.error(error);
+    return response.json({
+        statusCode: 500,
+        message: "Internal Server Error"
+    })
+})
 
-    return response.status(500).json({
-        status: "error",
-        message: "internal server error",
-    });
-
-});
-
-const PORT = 3333;
-app.listen(PORT, () => console.log(`Server is running on Port ${PORT}`));
+const port = process.env.PORT || 3000
+app.listen(port, () => console.log(`Server is running on port: ${port}`))
